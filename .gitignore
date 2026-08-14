@@ -1,0 +1,16 @@
+# Perl
+*.bak
+*.tmp
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / editors
+.idea/
+.vscode/
+
+# Private Files
+.launcher-commands.yaml
