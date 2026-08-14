@@ -5,11 +5,11 @@ __H8 Launcher__ is a lightweight Perl-based command launcher that lets you defin
 
 ## Compatibility
 
-H8 Launcher is designed to run on:
-- Linux
+__H8 Launcher__ is designed to run on:
+- Linux / Unix
 - Windows
 
-It requires Perl to be installed and available in your system `PATH`.
+> Note: __H8 Launcher__ requires [Perl](https://www.perl.org/) to be installed and available in your system `PATH`.
 
 
 ## Features
@@ -19,7 +19,7 @@ It requires Perl to be installed and available in your system `PATH`.
 - __Custom Variables__ — Define reusable variables and use them in your commands.
 - __Command Descriptions__ — Add descriptions that are displayed in the usage screen.
 - __Execution Metadata__ — Customize the execution context of individual commands.
-- __Zero-configuration Setup__ — Automatically creates the configuration file (`~/.launcher-commands.yaml`) on first run.
+- __Zero-configuration Setup__ — Automatically creates the configuration file on first run.
 - __Fast Command Execution__ — Run any configured command directly with `run <alias>`.
 
 
@@ -31,7 +31,7 @@ It requires Perl to be installed and available in your system `PATH`.
 
 ## Installation
 
-__H8 Launcher__ requires [Perl](https://www.perl.org/) to be installed and available in your system `PATH`.
+__H8 Launcher__ is easy to install with simple and straightforward installation steps.
 
 ### Linux / Unix
 
@@ -85,8 +85,6 @@ You can then run __H8 Launcher__ from any directory:
 ```sh
 run
 ```
-
-> Note: Perl must be installed and available in your system `PATH` on both __Linux__ and __Windows__.
 
 
 ## Usage
