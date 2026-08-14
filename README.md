@@ -37,8 +37,8 @@ __H8 Launcher__ requires [Perl](https://www.perl.org/) to be installed and avail
 
 #### 1. Clone The Repository
 ```sh
-git clone https://github.com/H8WebDev/launcher.git
-cd launcher
+git clone https://github.com/H8WebDev/Launcher.git
+cd Launcher
 ```
 Alternatively, you can download the repository as a ZIP file and extract it.
 
@@ -64,8 +64,8 @@ You should see the usage screen.
 
 #### 1. Clone The Repository
 ```sh
-git clone https://github.com/H8WebDev/launcher.git
-cd launcher
+git clone https://github.com/H8WebDev/Launcher.git
+cd Launcher
 ```
 Alternatively, download the repository as a ZIP file and extract it.
 
