@@ -190,7 +190,7 @@ sub print_available_aliases
 sub print_usage
 {
 	Utils->print_title();
-	Utils->print_msg("INFO", "Usage: bookmark <alias> [<options>]");
+	Utils->print_msg("INFO", "Usage: run <alias> [<options>]");
 	print_available_aliases();
 	exit 0;
 }
