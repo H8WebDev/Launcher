@@ -1,2 +1,2 @@
 @echo off
-perl "%~dp0run" %*
+perl "%~dp0run.pl" %*

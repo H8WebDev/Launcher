@@ -2,7 +2,7 @@
 set -e
 
 LAUNCHER_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RUN_SCRIPT="$LAUNCHER_PATH/run"
+RUN_SCRIPT="$LAUNCHER_PATH/run.pl"
 BIN_DIR="$HOME/.local/bin"
 LINK_PATH="$BIN_DIR/run"
 
