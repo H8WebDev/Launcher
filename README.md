@@ -3,11 +3,11 @@
 	<h1>H8 Launcher</h1>
 </div>
 <div align="center">
-	<a href="matrix:r/H8-Launcher:matrix.org?action=join"><img src=".github/matrix-badge.png" style="border-radius: 4px" height="24px" alt="Matrix Logo" /></a>
+	<a href="matrix:r/H8-Launcher:matrix.org?action=join"><img src=".github/matrix-badge.png" height="24px" alt="Matrix Logo" /></a>
 	&emsp;
-	<a href="https://t.me/H8_Launcher"><img src=".github/telegram-badge.png" height="24px" style="border-radius: 4px" alt="Telegram Logo" /></a>
+	<a href="https://t.me/H8_Launcher"><img src=".github/telegram-badge.png" height="24px" alt="Telegram Logo" /></a>
 	&emsp;
-	<!--<a href="#"><img src=".github/discord-badge.png" style="border-radius: 4px" height="24px" alt="Discord Logo" /></a>-->
+	<!--<a href="#"><img src=".github/discord-badge.png" height="24px" alt="Discord Logo" /></a>-->
 </div>
 
 <br />
