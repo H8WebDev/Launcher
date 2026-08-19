@@ -147,7 +147,7 @@ sub replace_variables
 		}elsif($type eq 'OPT'){
 			if($esc){ return "\$$key"; }
 			my $opts = Utils->get_option("opts");
-			return ($key eq "0" ? join(' ', @$opts) : defined($opts->[$key - 1]) ? $opts->[$key - 1] : "");
+			return ($key eq "0" ? $opts->join(' ') : $opts->at($key - 1) || "");
 		}
 		return "";
 	};
@@ -688,6 +688,11 @@ BEGIN {
 	use strict;
 	use warnings;
 
+	use constant {
+		KEY     => 0, # Key of Item 0:   $self->{items}->[0]->[KEY]
+		VALUE   => 1, # Value of Item 0: $self->{items}->[0]->[VALUE]
+	};
+
 	# Static method used to create a HashMap instance directly from input "array of arrays" or "array of hashes":
 	# - Array Of Arrays --> Inner arrays should have only 2 items: [ key, value ]
 	# - Array Of Hashes --> Inner hashes should have only 1 item:  { key => value }
@@ -708,52 +713,53 @@ BEGIN {
 	}
 
 	# Creates new instance:
-	sub new { my ($class) = @_; bless { keys => [], data => {} }, $class; }
+	# type Item = [ key: string, value: any ];
+	sub new { my ($class) = @_; bless { items => [] }, $class; }
 
 	# Returns number of items in map:
-	sub length { my ($self) = @_; scalar(@{ $self->{keys} }); }
-
-	# Checks wether the `$key` exists in map:
-	sub has { my ($self, $key) = @_; return CORE::exists($self->{data}->{$key}); }
-
-	# Add `$key` if not exists, or update it with `$value`:
-	sub set { my ($self, $key, $value) = @_; if(!$self->has($key)){ CORE::push(@{ $self->{keys} }, $key); } $self->{data}->{$key} = $value; }
-
-	# Only add `$key` if not exists:
-	sub put { my ($self, $key, $value) = @_; if(!$self->has($key)){ CORE::push(@{ $self->{keys} }, $key); $self->{data}->{$key} = $value; } }
-
-	# Returns value of `$key`:
-	sub get { my ($self, $key) = @_; return $self->{data}->{$key}; }
-
-	# Get list of keys:
-	sub keys { my ($self) = @_; return @{ $self->{keys} }; }
-
-	# Get list of values:
-	sub values { my ($self) = @_; return CORE::map { $self->{data}->{$_} } @{ $self->{keys} }; }
+	sub length { my ($self) = @_; scalar(@{ $self->{items} }); }
 
 	# Get index of `$key` in map:
-	sub index_of { my ($self, $key) = @_; for(my $i = 0; $i < @{ $self->{keys} }; $i++){ return $i if $self->{keys}->[$i] eq $key; } return -1; }
+	sub index_of { my ($self, $key) = @_; for(my $i = 0; $i < @{ $self->{items} }; $i++){ return $i if $self->{items}->[$i]->[KEY] eq $key; } return -1; }
+
+	# Checks wether the `$key` exists in map:
+	sub has { my ($self, $key) = @_; return $self->index_of($key) >= 0; }
+
+	# Add `$key` if not exists, or update it with `$value`:
+	sub set { my ($self, $key, $value) = @_; my $index = $self->index_of($key); if($index >= 0){ $self->{items}->[$index]->[VALUE] = $value; }else{ CORE::push(@{ $self->{items} }, [$key, $value]); } }
+
+	# Only add `$key` if not exists:
+	sub put { my ($self, $key, $value) = @_; if(!$self->has($key)){ CORE::push(@{ $self->{items} }, [$key, $value]); return Utils::TRUE(); } return Utils::FALSE(); }
+
+	# Returns value of `$key`:
+	sub get { my ($self, $key) = @_; my $index = $self->index_of($key); return ($index >= 0 ? $self->{items}->[$index]->[VALUE] : undef); }
+
+	# Get list of keys:
+	sub keys { my ($self) = @_; my $keys = []; for my $item (@{ $self->{items} }){ push(@$keys, $item->[KEY]); } return $keys; }
+
+	# Get list of values:
+	sub values { my ($self) = @_; my $values = []; for my $item (@{ $self->{items} }){ push(@$values, $item->[VALUE]); } return $values; }
 
 	# Makes a clone of map:
 	sub clone { my ($self) = @_; my $cloned = HashMap->new(); $self->for_each(sub { my ($v, $k) = @_; $cloned->set($k => $v); }); return $cloned; }
 
-	# Returns the item (key, value) at specified `$index`:
+	# Returns the item [KEY, VALUE] at specified `$index`:
 	sub at
 	{
 		my ($self, $index) = @_;
 		return undef if !defined $index;
 		return undef if $index < 0 || $index > @{ $self->{keys} };
-		my $key = $self->{keys}->[$index];
-		return ($key, $self->{data}->{$key});
+		return [ @{ $self->{items}->[$index] } ];
 	}
 
 	# Deletes the item with specified `$key`:
 	sub delete
 	{
 		my ($self, $key) = @_;
-		return unless $self->has($key);
-		CORE::delete $self->{data}->{$key};
-		@{ $self->{keys} } = CORE::grep { $_ ne $key } @{ $self->{keys} };
+		my $index = $self->index_of($key);
+		return Utils::FALSE() unless $index >= 0;
+		CORE::splice(@{ $self->{items} }, $index, 1);
+		return Utils::TRUE();
 	}
 
 	# Calls provided `$callback` for each item of map:
@@ -761,7 +767,7 @@ BEGIN {
 	{
 		my ($self, $callback) = @_;
 		if(Utils->is_code_ref($callback)){
-			while(my ($i, $k) = CORE::each @{ $self->{keys} }){ my $v = $self->{data}->{$k}; $callback->($v, $k, $i, $self); }
+			while(my ($index, $item) = CORE::each @{ $self->{items} }){ $callback->($item->[VALUE], $item->[KEY], $index, $self); }
 		}
 	}
 
@@ -770,7 +776,7 @@ BEGIN {
 	{
 		my ($self, $callback) = @_;
 		if(Utils->is_code_ref($callback)){
-			while(my ($i, $k) = CORE::each @{ $self->{keys} }){ my $v = $self->{data}->{$k}; return $v if $callback->($v, $k, $i, $self); }
+			while(my ($index, $item) = CORE::each @{ $self->{items} }){ return $item->[VALUE] if $callback->($item->[VALUE], $item->[KEY], $index, $self); }
 		}
 	}
 
@@ -780,7 +786,7 @@ BEGIN {
 		my ($self, $callback) = @_;
 		if(Utils->is_code_ref($callback)){
 			my $result = HashMap->new();
-			while(my ($i, $k) = CORE::each @{ $self->{keys} }){ my $v = $self->{data}->{$k}; $result->set($k, $v) if $callback->($v, $k, $i, $self); }
+			while(my ($index, $item) = CORE::each @{ $self->{items} }){ $result->set($item->[KEY], $item->[VALUE]) if $callback->($item->[VALUE], $item->[KEY], $index, $self); }
 			return $result;
 		}
 	}
@@ -791,7 +797,7 @@ BEGIN {
 		my ($self, $callback) = @_;
 		if(Utils->is_code_ref($callback)){
 			my $result = HashMap->new();
-			while(my ($i, $k) = CORE::each @{ $self->{keys} }){ my $v = $self->{data}->{$k}; $result->set($k, $callback->($v, $k, $i, $self)); }
+			while(my ($index, $item) = CORE::each @{ $self->{items} }){ $result->set($item->[KEY], $callback->($item->[VALUE], $item->[KEY], $index, $self)); }
 			return $result;
 		}
 	}
@@ -801,7 +807,7 @@ BEGIN {
 	{
 		my ($self) = @_;
 		my $result = {};
-		for(CORE::keys %{ $self->{data} }){ $result->{$_} = $self->{data}->{$_}; }
+		for my $item (@{ $self->{items} }){ $result->{$item->[KEY]} = $item->[VALUE]; }
 		return $result;
 	}
 
