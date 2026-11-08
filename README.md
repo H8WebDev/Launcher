@@ -3,7 +3,7 @@
 	<h1>H8 Launcher</h1>
 </div>
 <div align="center">
-	<a href="matrix:r/H8WebDev:matrix.org?action=join"><img src=".github/matrix-badge.png" height="40px" alt="Matrix Logo" /></a>
+	<a href="https://matrix.to/#/#H8WebDev:matrix.org"><img src=".github/matrix-badge.png" height="40px" alt="Matrix Logo" /></a>
 	&emsp;
 	<a href="https://t.me/H8WebDev"><img src=".github/telegram-badge.png" height="40px" alt="Telegram Logo" /></a>
 	&emsp;
