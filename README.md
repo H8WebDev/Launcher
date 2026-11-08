@@ -1,5 +1,5 @@
 <div align="center">
-	<img src=".github/logo.svg" width="96" alt="H8 Launcher Logo" />
+	<img src=".github/icon.png" width="96" alt="H8 Launcher Logo" />
 	<h1>H8 Launcher</h1>
 </div>
 <div align="center">
