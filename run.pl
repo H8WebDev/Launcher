@@ -338,7 +338,7 @@ BEGIN {
 		TRUE       => 1,
 		APP_DEV    => "H8",
 		APP_NAME   => "Launcher",
-		APP_VER    => "1.1.0",
+		APP_VER    => "1.2.0",
 		APP_REPO   => "https://github.com/H8WebDev/Launcher",
 		THEN_EXIT  => 0,
 		THEN_DIE   => 1,
