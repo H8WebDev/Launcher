@@ -3,9 +3,9 @@
 	<h1>H8 Launcher</h1>
 </div>
 <div align="center">
-	<a href="https://matrix.to/#/#H8WebDev:matrix.org"><img src=".github/matrix-badge.png" height="40px" alt="Matrix Logo" /></a>
+	<a href="https://matrix.to/#/#H8WebDev:matrix.org" target="_blank"><img src=".github/matrix-badge.png" height="40px" alt="Matrix Logo" /></a>
 	&emsp;
-	<a href="https://t.me/H8WebDev"><img src=".github/telegram-badge.png" height="40px" alt="Telegram Logo" /></a>
+	<a href="https://t.me/H8WebDev" target="_blank"><img src=".github/telegram-badge.png" height="40px" alt="Telegram Logo" /></a>
 	&emsp;
 	<!--<a href="#"><img src=".github/discord-badge.png" height="40px" alt="Discord Logo" /></a>-->
 </div>
