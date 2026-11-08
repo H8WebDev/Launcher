@@ -8,11 +8,12 @@ use List::Util qw(max);
 use Term::ANSIColor qw(:constants colorstrip);
 
 
-use constant COMMANDS_FILE => "$ENV{HOME}/.launcher-commands.yaml";
+use constant COMMANDS_FILE => "~/.launcher-commands.yaml";
 use constant TEXT_EDITOR => "nano --tabsize=4 --autoindent --linenumbers {file}";
 use constant DISABLED_INTERNAL_COMMANDS => [];
 
 
+our $USER_HOME = $ENV{"HOME"};
 our $USER_COMMANDS = {};
 our $USER_VARIABLES = {};
 our $INNER_COMMANDS = InternalCommands->new($USER_COMMANDS, $USER_VARIABLES);
@@ -27,9 +28,9 @@ our $OPT_USE_REGEXP   = qr/(\\?)\$(\d+)/;
 
 sub check_commands_file
 {
-	if(!-e COMMANDS_FILE){
+	my $file = Utils->commands_file();
+	if(!-e $file){
 		my ($dev, $app, $ver) = (Utils::APP_DEV(), Utils::APP_NAME(), Utils::APP_VER());
-		my $file = COMMANDS_FILE;
 		open my $fh, ">", $file or Utils->print_msg("ERROR", "Cannot create $file: $!", Utils::THEN_DIE());
 		my $yaml = <<"LAUNCHER_COMMANDS_YAML";
 # $dev $app $ver | Commands File
@@ -67,7 +68,8 @@ LAUNCHER_COMMANDS_YAML
 
 sub parse_commands_yaml
 {
-	my @docs = SimpleYAML->parse_file(COMMANDS_FILE);
+	my $file = Utils->commands_file();
+	my @docs = SimpleYAML->parse_file($file);
 	for my $doc (@docs) {
 		for my $key (keys %$doc) {
 			Utils->print_msg("ERROR", "Command alias should not starts with \"@\": $key", Utils::THEN_DIE()) if $key =~ /^\@/;
@@ -236,17 +238,25 @@ sub print_invalid_args
 }
 
 
+sub restart_as_root
+{
+	Utils->bash(["sudo", $^X, $0, @ARGV]);
+}
+
+
 sub execute_command
 {
 	my ($alias, $row) = @_;
 	my $meta = parse_meta_vars($row->{meta}); # apply meta vars
 	$meta = parse_meta_envs($meta); #apply meta envs
+	if($meta->get("sudo") && $> != 0){ restart_as_root(); return; }
 	Utils->get_option("envs")->for_each(sub { my ($v, $k) = @_; if($k =~ /^$ENV_USE_REGEXP$/){ $ENV{$1} = $v; } }); # apply cli envs
 	$INNER_COMMANDS->clear() if $meta->get("clear");
 	if($meta->get("quiet")){ Utils->set_option("quiet", Utils::TRUE()); }
 	Utils->print_title();
 	my $command = replace_variables(Utils->trim($row->{cmd}));
 	$command =~ s/^;+|;+$//g;
+	Utils->print(BRIGHT_YELLOW, "◆ RUNNING COMMANDS AS ROOT") if $> == 0;
 	Utils->print(BRIGHT_GREEN, "➤ RUN: $command");
 	my @all_commands = Utils->split_commands($command);
 	for(@all_commands){
@@ -285,6 +295,13 @@ sub run
 
 sub main
 {
+	if($> == 0){
+		# Running as "root", so we change home directory to user's home:
+		my $user = $ENV{SUDO_USER};
+		my @pw = getpwnam($user);
+		$ENV{"SUDO_HOME"} = $pw[7];
+		$USER_HOME = $pw[7];
+	}
 	my $err = Utils->parse_options();
 	if($err){ Utils->print_title(); print_invalid_args($err); }
 	check_commands_file();
@@ -344,6 +361,7 @@ BEGIN {
 	};
 
 	sub dump { my ($class, @args) = @_; my $dumper = Data::Dumper->new([ @args ]); $dumper->Indent(1)->Trailingcomma(1)->Purity(1); print $dumper->Dump; }
+	sub commands_file { (my $file = main::COMMANDS_FILE()) =~ s/^~/$USER_HOME/; return $file; }
 
 	sub is_scalar    { my ($class, $value) = @_; return !ref($value); }
 	sub is_regexp    { my ($class, $value) = @_; return (ref($value) eq "Regexp"); }
@@ -625,7 +643,7 @@ BEGIN {
 
 	sub edit
 	{
-		my $file = main::COMMANDS_FILE();
+		my $file = Utils->commands_file();
 		my $cmd = main::TEXT_EDITOR() =~ s/\{file\}/$file/r;
 		Utils->print_msg("INFO", "Editing \"$file\" file...") unless Utils->get_option("quiet");
 		Utils->bash($cmd);
