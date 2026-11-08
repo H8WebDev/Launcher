@@ -170,6 +170,7 @@ sub parse_meta_vars
 	}
 }
 
+
 sub parse_meta_envs
 {
 	my ($meta) = @_;
@@ -199,11 +200,11 @@ sub print_available_aliases
 	}
 	# Internal Commands:
 	print "\nInternal Commands:\n";
-	for($INNER_COMMANDS->_keys()){
-		next if $_ eq 'dev';
+	for my $cmd (@{ $INNER_COMMANDS->_keys() }){
+		next if $cmd eq 'dev';
 		print " • ";
-		print BRIGHT_MAGENTA, "\@$_", RESET;
-		print " ", YELLOW, "(", $INNER_COMMANDS->_desc($_), ")", RESET;
+		print BRIGHT_MAGENTA, "\@$cmd", RESET;
+		print " ", YELLOW, "(", $INNER_COMMANDS->_desc($cmd), ")", RESET;
 		print "\n";
 	}
 	# Options:
